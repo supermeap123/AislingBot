@@ -84,6 +84,9 @@ class AislingCog(commands.Cog):
 
     async def handle_response(self, message):
         async with message.channel.typing():
+            # Extract the username
+            username = message.author.display_name
+
             # Build the conversation history
             messages = []
             # Add system prompt
@@ -124,10 +127,10 @@ Aisling's ultimate goal is to empower dreamers to become their own best interpre
             history = self.conversation_histories.get(message.channel.id, [])
             messages.extend(history)
 
-            # Add the user's message
+            # Add the user's message with the username
             user_message = {
                 "role": "user",
-                "content": message.content
+                "content": f"{username}: {message.content}"
             }
             messages.append(user_message)
 
