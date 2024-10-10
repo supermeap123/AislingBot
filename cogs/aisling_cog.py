@@ -146,7 +146,7 @@ Aisling's ultimate goal is to empower dreamers to become their own best interpre
                 # Save conversation
                 guild_id = message.guild.id if message.guild else 'DM'
                 channel_id = message.channel.id
-                self.save_conversation_to_jsonl(history, guild_id, channel_id)
+                self.save_conversation_to_jsonl(history, guild_id, channel_id, system_prompt)
             else:
                 logger.error("Failed to get response from OpenRouter API.")
 
@@ -178,7 +178,7 @@ Aisling's ultimate goal is to empower dreamers to become their own best interpre
         sentiment = await loop.run_in_executor(None, self.analyzer.polarity_scores, text)
         return sentiment['compound']
 
-    def save_conversation_to_jsonl(self, history, guild_id, channel_id):
+    def save_conversation_to_jsonl(self, history, guild_id, channel_id, system_prompt):
         with self.jsonl_lock:
             if not os.path.exists('conversations'):
                 os.makedirs('conversations')
@@ -186,7 +186,13 @@ Aisling's ultimate goal is to empower dreamers to become their own best interpre
                 file_path = f'conversations/DM_{channel_id}.jsonl'
             else:
                 file_path = f'conversations/{guild_id}_{channel_id}.jsonl'
+
+            # Check if the file exists and is not empty
+            write_system_prompt = not os.path.exists(file_path) or os.path.getsize(file_path) == 0
+
             with open(file_path, 'a', encoding='utf-8') as f:
+                if write_system_prompt:
+                    f.write(f"{json.dumps({'role': 'system', 'content': system_prompt})}\n")
                 for msg in history:
                     f.write(f"{json.dumps(msg)}\n")
 

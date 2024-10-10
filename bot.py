@@ -16,7 +16,7 @@ bot = commands.Bot(command_prefix='e!', intents=intents)
 async def on_ready():
     logger.info(f"Logged in as {bot.user}")
     init_database()
-    await bot.add_cog(AislingCog(bot))
+    bot.add_cog(AislingCog(bot))
 
 if __name__ == '__main__':
     try:
