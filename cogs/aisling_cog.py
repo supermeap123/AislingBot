@@ -192,9 +192,8 @@ Aisling's ultimate goal is to empower dreamers to become their own best interpre
 
             with open(file_path, 'a', encoding='utf-8') as f:
                 if write_system_prompt:
-                    f.write(f"{json.dumps({'role': 'system', 'content': system_prompt})}\n")
-                for msg in history:
-                    f.write(f"{json.dumps(msg)}\n")
+                    f.write(f"{json.dumps([{'role': 'system', 'content': system_prompt}])}\n")
+                f.write(f"{json.dumps(history)}\n")
 
     @commands.command(name='aisling_help', aliases=['aisling_commands', 'aislinghelp'])
     async def aisling_help(self, ctx):
