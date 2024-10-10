@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands, tasks
 import threading
 import time
-import shutil
 import os
 import json
 import random
@@ -59,7 +58,6 @@ class AislingCog(commands.Cog):
         # Get guild_id and channel_id
         guild_id = message.guild.id if message.guild else 'DM'
         channel_id = message.channel.id
-        user_id = message.author.id
 
         # Load probabilities
         reply_probability, reaction_probability = load_probabilities(guild_id, channel_id)
@@ -187,14 +185,12 @@ Aisling's ultimate goal is to empower dreamers to become their own best interpre
             else:
                 file_path = f'conversations/{guild_id}_{channel_id}.jsonl'
 
-            # Check if the file exists and is not empty
-            write_system_prompt = not os.path.exists(file_path) or os.path.getsize(file_path) == 0
+            # Prepare the full conversation history including the system prompt
+            full_history = [{"role": "system", "content": system_prompt}] + history
 
-            with open(file_path, 'a', encoding='utf-8') as f:
-                if write_system_prompt:
-                    f.write(f"{json.dumps({'role': 'system', 'content': system_prompt})}\n")
-                for msg in history:
-                    f.write(f"{json.dumps(msg)}\n")
+            # Write the entire conversation history as a single JSON object with a "messages" array
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump({"messages": full_history}, f, ensure_ascii=False)
 
     @commands.command(name='aisling_help', aliases=['aisling_commands', 'aislinghelp'])
     async def aisling_help(self, ctx):
